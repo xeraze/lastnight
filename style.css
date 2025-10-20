@@ -1,0 +1,47 @@
+body {
+    background-color: #000000;
+    color: #DDDDDD;
+    font-family: monospace;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#game-container {
+    max-width: 600px;
+    padding: 20px;
+    border: 1px solid #333;
+}
+
+#text-display {
+    white-space: pre-wrap;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+button {
+    background-color: #111;
+    color: #eee;
+    border: 1px solid #333;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #222;
+}
+
+.glitch {
+    color: red;
+    animation: shake 0.1s infinite alternate;
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    100% { transform: translate(-1px, -1px) rotate(0deg); }
+}
