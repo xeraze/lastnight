@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow: hidden;
 }
 
 #game-container {
@@ -36,12 +37,25 @@ button:hover {
     background-color: #222;
 }
 
-.glitch {
-    color: red;
-    animation: shake 0.1s infinite alternate;
+#player {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #4CAF50;
+    border: 1px solid white;
+    transition: left 0.1s, top 0.1s;
+    display: none;
 }
 
-@keyframes shake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    100% { transform: translate(-1px, -1px) rotate(0deg); }
+.glitch {
+    color: red;
+    animation: shake-extreme 0.05s infinite alternate; 
+}
+
+@keyframes shake-extreme {
+    0% { transform: translate(5px, 0px) rotate(1deg); color: #FF4500; }
+    25% { transform: translate(-3px, 5px) rotate(-1deg); color: #FF0000; }
+    50% { transform: translate(0px, -5px) rotate(2deg); color: #FF6347; }
+    75% { transform: translate(5px, 3px) rotate(-2deg); color: #B22222; }
+    100% { transform: translate(-5px, -5px) rotate(1deg); color: #DC143C; }
 }
