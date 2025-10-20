@@ -6,22 +6,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="snow-container"></div> 
+    
     <div id="game-world">
-        <div id="player"></div>
+        <div id="player" class="player-idle"></div> 
         
         <div id="scene-room" class="scene">
             <div id="table"></div>
-            <div id="plate">🍪</div>
-            <div id="phone">📱</div>
+            <div id="plate"></div>
+            <div id="phone"></div> <div id="window"></div>
         </div>
         
         <div id="scene-corridor" class="scene">
-            </div>
+            <div id="corridor-wall-left"></div>
+            <div id="corridor-wall-right"></div>
+            <div id="door-entrance" class="closed-door"></div>
+            <div id="cabinet" class="glass-cabinet"></div>
+            <div id="door-left-1" class="closed-door"></div>
+            <div id="door-left-2" class="closed-door"></div>
+            <div id="door-end-toilet" class="closed-door"></div>
+            <div id="door-end-right" class="open-door"></div>
+        </div>
 
         <div id="scene-discovery" class="scene">
-            <div id="bed"></div>
-            <div id="kitten"></div>
-            <div id="blood"></div>
+            <div id="bed-detailed"></div>
+            <div id="kitten-detailed"></div>
         </div>
     </div>
     
@@ -29,6 +38,7 @@
         <p id="text-display"></p>
         <div id="choices-container">
         </div>
+        <button id="continue-button" style="display: none;">Продолжить...</button>
     </div>
     <script src="script.js"></script>
 </body>
