@@ -5,10 +5,89 @@ body {
     margin: 0;
     padding: 20px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     overflow: hidden;
+}
+
+#game-world {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border: 3px solid #333;
+    background-color: #111;
+    margin-bottom: 20px;
+}
+
+.scene {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#player {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #00FF00;
+    z-index: 10;
+}
+
+#scene-room #table {
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    background-color: #5D4037;
+    top: 100px;
+    left: 100px;
+}
+#scene-room #plate {
+    position: absolute;
+    font-size: 20px;
+    top: 115px;
+    left: 140px;
+}
+#scene-room #phone {
+    position: absolute;
+    font-size: 20px;
+    top: 115px;
+    left: 170px;
+}
+
+#scene-corridor {
+    background-color: #000;
+}
+
+#scene-discovery #bed {
+    position: absolute;
+    width: 120px;
+    height: 70px;
+    background-color: #795548;
+    top: 100px;
+    left: 90px;
+    border: 2px solid #333;
+}
+#scene-discovery #kitten {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #9E9E9E;
+    top: 130px;
+    left: 140px;
+    z-index: 5;
+}
+#scene-discovery #blood {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #8B0000;
+    border-radius: 50%;
+    top: 125px;
+    left: 135px;
+    opacity: 0.8;
 }
 
 #game-container {
@@ -35,16 +114,6 @@ button {
 
 button:hover {
     background-color: #222;
-}
-
-#player {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #4CAF50;
-    border: 1px solid white;
-    transition: left 0.1s, top 0.1s;
-    display: none;
 }
 
 .glitch {
