@@ -69,8 +69,7 @@
         
         const WIDTH = canvas.width;
         const HEIGHT = canvas.height;
-        const TILE_SIZE = 64;
-        
+
         const ROOM_COLOR = '#666';
         const WALL_COLOR = '#444';
         
@@ -91,7 +90,7 @@
             x: WIDTH / 2,
             y: HEIGHT / 2,
             speed: 5,
-            color: '#39ff14' // Яркий зеленый
+            color: '#39ff14'
         };
 
         const keysPressed = {};
@@ -241,10 +240,8 @@
                 }
             }
         }
-
         
         function drawRoom() {
-            
             ctx.fillStyle = WALL_COLOR;
             ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -284,6 +281,7 @@
         }
 
         function gameLoop() {
+
             ctx.clearRect(0, 0, WIDTH, HEIGHT);
             
             drawRoom();
