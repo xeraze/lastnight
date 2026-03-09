@@ -12,22 +12,22 @@ window.onload = () => {
 
     let gameState = 'menu';
     let assets = {};
-    let patterns = {};
     let snowflakes = [];
+    let zoom = 1.8;
     
-    let zoom = 1.8; 
     let playerP = { 
-        x: 450, y: 250, speed: 2.5,
+        x: 425, y: 260,
+        speed: 1.2,
         width: 32, height: 48,
         drawWidth: 48, drawHeight: 72,
         direction: 'down', isMoving: false,
-        currentFrame: 0, animationTimer: 0, animationSpeed: 10
+        currentFrame: 0, animationTimer: 0, animationSpeed: 12
     };
 
-    let camera = { x: 450, y: 250 };
+    let camera = { x: 300, y: 150 };
     let keys = { w: false, a: false, s: false, d: false };
 
-    let kitten = { x: 340, y: 620, state: 'sleeping', bloodAlpha: 0 };
+    let kitten = { x: 350, y: 620, state: 'sleeping' };
 
     const assetList = {
         playerIdle: 'assets/IdleCharacter5.png',
@@ -38,8 +38,6 @@ window.onload = () => {
         floor: 'assets/FloorHouse5.png',
         wall: 'assets/WallHouse5.png',
         menuBg: 'assets/BackgroundMenu1and2.png',
-        menuButton: 'assets/ButtonMenu5.png',
-        cursor: 'assets/Moeda3e4.png',
         bed: 'assets/Bed5.png',
         stove: 'assets/Stove5.png',
         refrigerator: 'assets/Refrigerator5.png',
@@ -74,19 +72,61 @@ window.onload = () => {
         }
     }
 
+    function createSnowflakes() {
+        for (let i = 0; i < 100; i++) {
+            snowflakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2 + 1,
+                d: Math.random() * 1 + 0.5
+            });
+        }
+    }
+
+    function drawSnow() {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+        ctx.beginPath();
+        for (let s of snowflakes) {
+            ctx.moveTo(s.x, s.y);
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            s.y += s.d;
+            if (s.y > canvas.height) s.y = -10;
+        }
+        ctx.fill();
+    }
+
     startButton.onclick = () => {
-        gameState = 'playing';
         mainMenu.style.display = 'none';
-        if (typeof Tone !== 'undefined') Tone.start();
+        playScreamEffect();
+        gameState = 'playing';
+        showDialog("*Різкий крик пролунав з коридору...*");
     };
 
+    function playScreamEffect() {
+        if (typeof Tone !== 'undefined') {
+            Tone.start();
+            const noise = new Tone.Noise("brown").start();
+            const filter = new Tone.Filter(1500, "lowpass").toDestination();
+            noise.connect(filter);
+            noise.volume.rampTo(-10, 0.1);
+            setTimeout(() => noise.stop(), 600);
+        }
+    }
+
     window.onmousemove = (e) => {
+        const rect = canvas.getBoundingClientRect();
         customCursor.style.left = e.clientX + 'px';
         customCursor.style.top = e.clientY + 'px';
     };
 
     window.onkeydown = (e) => { if(gameState==='playing') keys[e.key] = true; };
     window.onkeyup = (e) => { if(gameState==='playing') keys[e.key] = false; };
+
+    function showDialog(t) {
+        dialogText.textContent = t;
+        dialogBox.style.display = 'block';
+        setTimeout(() => { dialogBox.style.display = 'none'; }, 4000);
+    }
 
     function update() {
         if (gameState !== 'playing') return;
@@ -99,89 +139,90 @@ window.onload = () => {
         if (keys.a) { playerP.x -= playerP.speed; playerP.direction = 'left'; playerP.isMoving = true; }
         if (keys.d) { playerP.x += playerP.speed; playerP.direction = 'right'; playerP.isMoving = true; }
 
-        let inAnyRoom = world.rooms.some(r => 
-            playerP.x > r.x && playerP.x + playerP.drawWidth < r.x + r.width &&
-            playerP.y + 40 > r.y && playerP.y + playerP.drawHeight < r.y + r.height
+        let inRoom = world.rooms.some(r => 
+            playerP.x > r.x - 10 && playerP.x < r.x + r.width - 20 &&
+            playerP.y > r.y - 10 && playerP.y < r.y + r.height - 40
         );
-        if (!inAnyRoom) { playerP.x = oldX; playerP.y = oldY; }
+        if (!inRoom) { playerP.x = oldX; playerP.y = oldY; }
 
         let targetX = playerP.x - (canvas.width / 2) / zoom;
         let targetY = playerP.y - (canvas.height / 2) / zoom;
-        camera.x += (targetX - camera.x) * 0.1;
-        camera.y += (targetY - camera.y) * 0.1;
+        camera.x += (targetX - camera.x) * 0.05;
+        camera.y += (targetY - camera.y) * 0.05;
 
         let dist = Math.sqrt(Math.pow(playerP.x - kitten.x, 2) + Math.pow(playerP.y - kitten.y, 2));
-        if (dist < 70 && kitten.state === 'sleeping') {
+        if (dist < 60 && kitten.state === 'sleeping') {
             kitten.state = 'scared';
-            showDialog("Він здригнувся... Щось не так.");
-            setTimeout(() => { kitten.state = 'dead'; }, 2000);
+            showDialog("Він здригнувся... Кров...");
+            setTimeout(() => { kitten.state = 'dead'; }, 3000);
         }
-    }
-
-    function showDialog(t) {
-        dialogText.textContent = t;
-        dialogBox.style.display = 'block';
-        setTimeout(() => { dialogBox.style.display = 'none'; }, 4000);
     }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        ctx.save();
+        ctx.scale(zoom, zoom);
+        ctx.translate(-camera.x, -camera.y);
+
+        world.rooms.forEach(r => {
+            let p = ctx.createPattern(assets.floor, 'repeat');
+            ctx.fillStyle = p;
+            ctx.fillRect(r.x, r.y, r.width, r.height);
+        });
+
+        world.furniture.forEach(f => {
+            ctx.drawImage(assets[f.asset], f.x, f.y, f.width, f.height);
+        });
+
         if (gameState === 'menu') {
-            ctx.drawImage(assets.menuBg, 0, 0, canvas.width, canvas.height);
-        } else {
-            ctx.save();
-            ctx.scale(zoom, zoom);
-            ctx.translate(-camera.x, -camera.y);
-
-            ctx.fillStyle = ctx.createPattern(assets.floor, 'repeat');
-            world.rooms.forEach(r => ctx.fillRect(r.x, r.y, r.width, r.height));
-
-            world.furniture.forEach(f => {
-                ctx.drawImage(assets[f.asset], f.x, f.y, f.width, f.height);
-            });
-
-            drawKitten();
-
-            let sheet = playerP.isMoving ? (playerP.direction === 'up' ? assets.playerWalkBack : (playerP.direction === 'down' ? assets.playerWalkFront : assets.playerWalk)) : (playerP.direction === 'up' ? assets.playerIdleBack : assets.playerIdle);
-            
-            if (playerP.isMoving) {
-                playerP.animationTimer++;
-                if (playerP.animationTimer > playerP.animationSpeed) {
-                    playerP.currentFrame = (playerP.currentFrame + 1) % 8;
-                    playerP.animationTimer = 0;
-                }
-            } else {
-                playerP.currentFrame = Math.floor(Date.now() / 200) % 4;
-            }
-
-            ctx.drawImage(sheet, playerP.currentFrame * 32, 0, 32, 48, playerP.x, playerP.y, playerP.drawWidth, playerP.drawHeight);
-
-            ctx.restore();
+            ctx.fillStyle = "white";
+            ctx.beginPath(); ctx.arc(430, 295, 6, 0, Math.PI*2); ctx.fill();
         }
+
+        drawKitten();
+
+        let sheet = playerP.isMoving ? (playerP.direction === 'up' ? assets.playerWalkBack : (playerP.direction === 'down' ? assets.playerWalkFront : assets.playerWalk)) : (playerP.direction === 'up' ? assets.playerIdleBack : assets.playerIdle);
+        let frameX = (playerP.isMoving ? playerP.currentFrame : Math.floor(Date.now()/250)%4) * 32;
+        
+        ctx.drawImage(sheet, frameX, 0, 32, 48, playerP.x, playerP.y, playerP.drawWidth, playerP.drawHeight);
+
+        ctx.restore();
+
+        if (gameState === 'menu') {
+            drawSnow();
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+        }
+
+        if (playerP.isMoving) {
+            playerP.animationTimer++;
+            if (playerP.animationTimer > playerP.animationSpeed) {
+                playerP.currentFrame = (playerP.currentFrame + 1) % 8;
+                playerP.animationTimer = 0;
+            }
+        }
+
         requestAnimationFrame(() => { update(); draw(); });
     }
 
     function drawKitten() {
         ctx.save();
-        ctx.fillStyle = '#777';
+        ctx.fillStyle = "#888";
         if (kitten.state === 'sleeping') {
-            ctx.beginPath();
-            ctx.ellipse(kitten.x + 20, kitten.y + 15, 12, 6, 0, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (kitten.state === 'scared' || kitten.state === 'dead') {
-            ctx.beginPath();
-            ctx.arc(kitten.x + 20, kitten.y + 10, 10, Math.PI, 0);
-            ctx.stroke();
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(kitten.x + 15, kitten.y + 10, 2, 0, Math.PI*2);
-            ctx.fill();
+            ctx.beginPath(); ctx.ellipse(kitten.x, kitten.y, 12, 6, 0.2, 0, Math.PI*2); ctx.fill();
+        } else {
+            ctx.strokeStyle = "#888"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(kitten.x, kitten.y, 10, Math.PI, 0); ctx.stroke();
+            ctx.fillStyle = "red";
+            ctx.beginPath(); ctx.arc(kitten.x - 5, kitten.y - 5, 2, 0, Math.PI*2); ctx.fill();
         }
         ctx.restore();
     }
 
     loadAssets(() => {
+        createSnowflakes();
         customCursor.style.display = 'block';
         draw();
     });
